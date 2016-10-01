@@ -19,8 +19,12 @@ processChoice :: Int -> IO ()
 processChoice 1 = do
                     putStrLn "2 Player Game"
                     start2PlayerGame initBoard 1
-processChoice 2 = putStrLn "1 Player Game"
-processChoice 3 = putStrLn "0 Player Game"
+processChoice 2 = do 
+                    putStrLn "1 Player Game"
+                    start1PlayerGame initBoard 1
+processChoice 3 = do 
+                    putStrLn "0 Player Game"
+                    start0PlayerGame initBoard 1
 
 
 start2PlayerGame a player = do 
@@ -33,11 +37,20 @@ start1PlayerGame a player = do
                               displayBoard a
                               putStrLn "Choose Column:"
                               column <- getInput a player
-                              print column
+                              processTurn start1PlayerGame a player (read column)
+
+start0PlayerGame a player = do
+                              displayBoard a
+                              putStrLn "Choose Column:"
+                              processTurn start0PlayerGame a player $ getInput0 a player
 
 getInput a player = if player == 1
                       then getLine
-                      else return $ show $ getChoice a
+                      else return $ show $ getComputerChoice a 2 2
+
+getInput0 a player = if player == 1
+                      then getComputerChoice a 1 2
+                      else getComputerChoice a 2 4
 
 processTurn gameFunc board player column = if column > 6
                                             then do 
@@ -50,17 +63,12 @@ processTurn gameFunc board player column = if column > 6
                                                         gameFunc board player
                                                       else let terminal = isTerminal (fromJust nBoard)
                                                         in if terminal == Nothing
-                                                            then gameFunc (fromJust nBoard) (nextChance player)
+                                                            then gameFunc (fromJust nBoard) (opponent player)
                                                             else do
-                                                              putStr "Player "
-                                                              putStr $ show $ fromJust terminal
-                                                              putStr " Wins\n"
-
-
-getChoice board = 1
-
-
-nextChance 1 = 2
-nextChance _ = 1
-
-
+                                                                  displayBoard (fromJust nBoard)
+                                                                  if terminal == Just 0
+                                                                    then putStrLn "Draw"
+                                                                    else do
+                                                                          putStr "Player "
+                                                                          putStr $ show $ fromJust terminal
+                                                                          putStr " Wins\n"

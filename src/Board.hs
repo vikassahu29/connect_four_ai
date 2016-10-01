@@ -12,11 +12,18 @@ displayBoard [] = putStrLn "\n"
 initBoard = take 7 $ repeat $ take 6 $ repeat 0
 
 
-isTerminal board = find (\a -> a /= 0) [checkForWin board x y xLen yLen | x <- [0.. (xLen - 1)] , y <- [0..(yLen - 1)]]
+isTerminal board 
+  | winner /= Nothing = winner
+  | isFilled board = Just 0
+  | otherwise = Nothing
+  where winner = find (\a -> a /= 0) [checkForWin board x y xLen yLen | x <- [0.. (xLen - 1)] , y <- [0..(yLen - 1)]]
                     where xLen = length board
-                          yLen = length $ board !! 0
+                          yLen = length $ board !! 0 
 
 
+isFilled board = not $ 0 `elem` [getMatrixElem board i j | i <- [0..(xLen - 1)], j <- [0..(yLen - 1)]]
+                        where xLen = length board
+                              yLen = length $ board !! 0
 checkForWin board x y xLen yLen = if ver /= 0
                                     then ver
                                     else if horz /= 0
